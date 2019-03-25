@@ -1,5 +1,5 @@
-//#include <Arduino.h>
-#include <MedianFilter.h>
+#include <Arduino.h>
+#include "MedianFilter.h"
 
 MedianFilter test(31, 0);
 
@@ -15,7 +15,7 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly: 
-  i = int(random(-9, 9));
+  i = float(random(-9, 9));
   test.in(i);
   j = test.out();
   

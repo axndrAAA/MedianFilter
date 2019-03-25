@@ -26,7 +26,6 @@
 
    The current median value is returned by the out() function for situations where the result is desired without passing in new data.
 
-   !!! All data must be type INT.  !!!
 
    Window Size / avg processing time [us]
    5  / 22
@@ -40,15 +39,15 @@
 #include "MedianFilter.h"
 
 
-MedianFilter::MedianFilter(int size, int seed)
+MedianFilter::MedianFilter(uint16_t size, float seed)
 {
    medFilterWin    = constrain(size, 3, 255); // number of samples in sliding median filter window - usually odd #
    medDataPointer  = size >> 1;           // mid point of window
-   data            = (int*)     calloc (size, sizeof(int));     // array for data
+   data            = (float*)     calloc (size, sizeof(float));     // array for data
    sizeMap         = (uint8_t*) calloc (size, sizeof(uint8_t)); // array for locations of data in sorted list
    locationMap     = (uint8_t*) calloc (size, sizeof(uint8_t)); // array for locations of history data in map list
    oldestDataPoint = medDataPointer;      // oldest data point location in data array
-   totalSum        = size * seed;         // total of all values
+   totalSum        = size * seed;          // total of all values
 
    for(uint8_t i = 0; i < medFilterWin; i++) // initialize the arrays
    {
@@ -59,7 +58,7 @@ MedianFilter::MedianFilter(int size, int seed)
 }
 
 
-int MedianFilter::in(const int & value)
+float MedianFilter::in(const float & value)
 {
    // sort sizeMap
    // small vaues on the left (-)
@@ -124,42 +123,43 @@ int MedianFilter::in(const int & value)
 }
 
 
-int MedianFilter::out() // return the value of the median data sample
+float MedianFilter::out() // return the value of the median data sample
 {
    return  data[sizeMap[medDataPointer]];
 }
 
 
-int MedianFilter::getMin()
+float MedianFilter::getMin()
 {
    return data[sizeMap[ 0 ]];
 }
 
 
-int MedianFilter::getMax()
+float MedianFilter::getMax()
 {
    return data[sizeMap[ medFilterWin - 1 ]];
 }
 
 
-int MedianFilter::getMean()
+float MedianFilter::getMean()
 {
    return totalSum / medFilterWin;
 }
 
 
-int MedianFilter::getStDev()  // Arduino run time [us]: filterSize * 2 + 131
+float MedianFilter::getStDev()  // Arduino run time [us]: filterSize * 2 + 131
 {
    int32_t diffSquareSum = 0;
-   int mean = getMean();
+   float mean = getMean();
+   float diff = 0.0;
 
    for( int i = 0; i < medFilterWin; i++ )
    {
-      int diff = data[i] - mean;
+      diff = data[i] - mean;
       diffSquareSum += diff * diff;
    }
 
-   return int( sqrtf( float(diffSquareSum) / float(medFilterWin - 1) ) + 0.5f );
+   return  sqrtf( float(diffSquareSum) / float(medFilterWin - 1) ) + 0.5f ;
 }
 
 
